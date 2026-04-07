@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Personal Dental 3D Viewer</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #000;
+            color: #eee;
+            font-family: sans-serif;
+            overflow: hidden;
+        }
+        header {
+            padding: 10px 20px;
+            background: #111;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #0078D4;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+        .btn {
+            background: #0078D4;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+        }
+        #viewer-container {
+            width: 100vw;
+            height: calc(100vh - 55px);
+            position: relative;
+        }
+        canvas {
+            display: block;
+        }
+        #status {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            color: #888;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div style="font-weight: bold;">3D DENTAL SEGMENTATION VIEWER</div>
+        <div class="controls">
+            <label class="btn">
+                LOAD DATA
+                <input type="file" id="file-input" multiple style="display: none;">
+            </label>
+            <label style="cursor: pointer;">
+                <input type="checkbox" id="toggle-mask" checked>
+                SHOW MASK
+            </label>
+        </div>
+    </header>
+
+    <div id="viewer-container">
+        <canvas id="gl"></canvas>
+        <div id="status">Ready. Please select scan and mask files.</div>
+    </div>
+
+    <script type="module">
+        import { Niivue } from "https://unpkg.com/@niivue/niivue/dist/index.js";
+
+        const nv = new Niivue({
+            backColor: [0, 0, 0, 1],
+            show3Dcrosshair: true,
+            isColorbar: true
+        });
+        nv.attachTo('gl');
+
+        // When user picks files
+        document.getElementById('file-input').addEventListener('change', async (e) => {
+            const files = Array.from(e.target.files);
+            const status = document.getElementById('status');
+            if (files.length === 0) return;
+
+            status.innerText = "Loading 3D data...";
+
+            // Bigger file is scan, smaller is mask
+            files.sort((a, b) => b.size - a.size);
+
+            const volumes = files.map((file) => {
+                const isMask = file.name.toLowerCase().includes('mask');
+                return {
+                    url: URL.createObjectURL(file),
+                    name: file.name,
+                    colorMap: isMask ? 'actc' : 'gray',
+                    opacity: isMask ? 0.85 : 1.0
+                };
+            });
+
+            try {
+                // Remove old volumes
+                if (nv.volumes.length > 0) nv.volumes = [];
+
+                await nv.loadVolumes(volumes);
+
+                // Set scaling for each volume
+                nv.volumes.forEach((vol, idx) => {
+                    if (vol.name.toLowerCase().includes('mask')) {
+                        // Mask with rainbow
+                        vol.cal_min = 1;
+                        vol.cal_max = 42;
+                    } else {
+                        // Scan normalized
+                        vol.cal_min = 0.0;
+                        vol.cal_max = 1.0;
+                    }
+                });
+
+                nv.updateGLVolume(); // Update view
+                nv.setSliceType(nv.sliceTypeMultiplanar);
+                status.innerText = "Data loaded and scaled.";
+            } catch (err) {
+                console.error(err);
+                status.innerText = "Error loading data: " + err.message;
+            }
+        });
+
+        // Handle mask toggle
+        document.getElementById('toggle-mask').addEventListener('change', (e) => {
+            // Find mask volume
+            const maskIdx = nv.volumes.findIndex(vol => vol.name.toLowerCase().includes('mask'));
+            if (maskIdx !== -1) {
+                nv.setOpacity(maskIdx, e.target.checked ? 0.85 : 0);
+            }
+        });
+    </script>
+</body>
+</html>
