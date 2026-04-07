@@ -6,8 +6,8 @@
 
 This repository contains an end-to-end deep learning pipeline for 3D instance segmentation of dental CBCT scans. The model automatically identifies and segments the jaw and up to 42 individual teeth, outputting the results into a lightweight, interactive web viewer.
 
-![Viewer Demo](assets/demo.gif)  
-*(Note: Add your GIF here showing the viewer in action)*
+https://github.com/user-attachments/assets/e0951276-9720-4177-9e3a-125a1a5ed52a
+
 
 ## Project Overview
 
