@@ -1,4 +1,4 @@
-# DobbeAI: 3D Dental Segmentation
+# 3D Dental Segmentation
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
 ![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?logo=pytorch&logoColor=white)
