@@ -10,7 +10,7 @@ https://github.com/user-attachments/assets/e0951276-9720-4177-9e3a-125a1a5ed52a
 
 ## Project Overview
 
-We built this pipeline to handle the complexities of real-world dental scans, specifically focusing on handling metal artifacts, variable scan resolutions, and instance-level tooth identification. 
+I built this pipeline to handle the complexities of real-world dental scans, specifically focusing on handling metal artifacts, variable scan resolutions, and instance-level tooth identification. 
 
 * **Dataset:** Processed the full public **ToothFairy2** dataset (335 volumes) into a standardized format. To optimize for compute efficiency during training, a curated subset of 82 volumes was sampled from this larger split and partitioned into **65 training**, **10 validation**, and **7 test** samples.
 * **Architecture:** 5-Layer 3D U-Net implemented via MONAI and PyTorch, trained with Automatic Mixed Precision (AMP).
